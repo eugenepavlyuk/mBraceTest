@@ -172,139 +172,8 @@ static BOOL s_hasDownOverlay = NO;
     }];
 }
 
-#pragma mark - Demo Methods
-- (void)demoUp
-{
-	// Shift the view upwards at a steady pace
-	CGPoint demoShift = CGPointMake(self.center.x, kVerticalEdgeOffset);
-	[self addSubview:s_overlayContainer];
-	UIView *sub = nil;
-	for (sub in [s_overlayContainer subviews])
-	{
-		if (sub.tag == ViewTagUpImage)
-		{
-			break;
-		}
-	}
-
-	[UIView animateWithDuration:1.5f animations:^{
-		self.center = demoShift;
-		self.alpha = 0.5f;
-		if (sub)
-			sub.alpha = 1.0f;
-	}];
-}
-
-- (void)demoDown
-{
-	// Shift the view downwards at a steady pace
-	CGPoint demoShift = CGPointMake(self.center.x, self.superview.frame.size.height - kVerticalEdgeOffset);
-	[self addSubview:s_overlayContainer];
-	UIView *sub = nil;
-	for (sub in [s_overlayContainer subviews])
-	{
-		if (sub.tag == ViewTagDownImage)
-		{
-			break;
-		}
-	}
-	
-	[UIView animateWithDuration:1.5f animations:^{
-		self.center = demoShift;
-		self.alpha = 0.5f;
-		if (sub)
-			sub.alpha = 1.0f;
-	}];
-}
-
-- (void)demoLeft
-{
-	// Shift the view to the left at a steady pace
-	CGPoint demoShift = CGPointMake(kHorizontalEdgeOffset, self.center.y);
-	UIView *sub = nil;
-	if (s_hasLeftOverlay)
-	{
-		[self addSubview:s_overlayContainer];
-		for (sub in [s_overlayContainer subviews])
-		{
-			if (sub.tag == ViewTagLeftImage)
-			{
-				break;
-			}
-		}
-	}
-	
-	[UIView animateWithDuration:1.5f animations:^{
-		self.center = demoShift;
-		self.alpha = 0.5f;
-		if (s_hasLeftOverlay)
-		{
-			if (sub)
-				sub.alpha = 1.0f;
-		}
-		else
-		{
-			self.transform = CGAffineTransformMakeRotation(-kStartRotation * M_PI * kRotationFactor / 180);
-		}
-	}];
-}
-
-- (void)demoRight
-{
-	// Shift the view to the right at a steady pace
-	CGPoint demoShift = CGPointMake(self.superview.frame.size.width - kHorizontalEdgeOffset, self.center.y);
-	UIView *sub = nil;
-	if (s_hasRightOverlay)
-	{
-		[self addSubview:s_overlayContainer];
-		for (sub in [s_overlayContainer subviews])
-		{
-			if (sub.tag == ViewTagRightImage)
-			{
-				break;
-			}
-		}
-	}
-	
-	[UIView animateWithDuration:1.5f animations:^{
-		self.center = demoShift;
-		self.alpha = 0.5f;
-		if (s_hasRightOverlay)
-		{
-			if (sub)
-				sub.alpha = 1.0f;
-		}
-		else
-		{
-			self.transform = CGAffineTransformMakeRotation(kStartRotation * M_PI * kRotationFactor / 180);
-		}
-	}];
-}
-
-- (void)demoReset
-{
-	[UIView animateWithDuration:0.25f animations:^{
-		self.center = self.originalCenter;
-		self.alpha = 1.0f;
-		self.transform = CGAffineTransformMakeRotation(0);
-		for (UIView *view in [s_overlayContainer subviews])
-		{
-			switch (view.tag)
-			{
-				case ViewTagUpImage:
-				case ViewTagDownImage:
-				case ViewTagLeftImage:
-				case ViewTagRightImage:
-					view.alpha = 0.0f;
-					break;
-				default:
-					break;
-			}
-		}
-	}];
-}
-
 #pragma mark - Touch Handlers
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (touches.count == 1)
@@ -682,32 +551,34 @@ static BOOL s_hasDownOverlay = NO;
         self.shift = CGPointMake(0, 0);
     }
     
+    CGPoint shiftPoint = _shift;
+    
     if (direction == DirectionUp || direction == DirectionDown)
     {
-        _shift.y += (currentLoc.y - prevLoc.y);
+        shiftPoint.y += (currentLoc.y - prevLoc.y);
     }
     else
     {
-        _shift.x += (currentLoc.x - prevLoc.x);
+        shiftPoint.x += (currentLoc.x - prevLoc.x);
     }
     
     for (UIView *view in [s_overlayContainer subviews])
     {
         if (view.tag == ViewTagDownImage && direction == DirectionDown)
         {
-            view.layer.opacity = (kOverlayOpacityFactor * _shift.y / 100);
+            view.layer.opacity = (kOverlayOpacityFactor * shiftPoint.y / 100);
         }
         else if (view.tag == ViewTagUpImage && direction == DirectionUp)
         {
-            view.layer.opacity = - (kOverlayOpacityFactor * _shift.y / 100);
+            view.layer.opacity = - (kOverlayOpacityFactor * shiftPoint.y / 100);
         }
         else if (view.tag == ViewTagRightImage && direction == DirectionRight)
         {
-            view.layer.opacity = (kOverlayOpacityFactor * _shift.x / 100);
+            view.layer.opacity = (kOverlayOpacityFactor * shiftPoint.x / 100);
         }
         else if (view.tag == ViewTagLeftImage && direction == DirectionLeft)
         {
-            view.layer.opacity = - (kOverlayOpacityFactor * _shift.x / 100);
+            view.layer.opacity = - (kOverlayOpacityFactor * shiftPoint.x / 100);
         }
     }
 }
