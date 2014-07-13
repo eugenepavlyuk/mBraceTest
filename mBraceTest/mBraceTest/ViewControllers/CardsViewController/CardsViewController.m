@@ -28,11 +28,11 @@
     CGRect cardFrame = CGRectMake(15, self.view.bounds.size.height / 2 - 183, 290, 366);
     
     // Setup overlay views
-    UIImage *leftImage = [UIImage imageNamed:@"visual_clue_yes"];
+    UIImage *leftImage = [UIImage imageNamed:@"visual_clue_no"];
     UIImageView *leftImageView = [[UIImageView alloc] initWithImage:leftImage];
     leftImageView.frame = CGRectMake(0, 0, 290, 255);
 
-    UIImage *rightImage = [UIImage imageNamed:@"visual_clue_no"];
+    UIImage *rightImage = [UIImage imageNamed:@"visual_clue_yes"];
     UIImageView *rightImageView = [[UIImageView alloc] initWithImage:rightImage];
     rightImageView.frame = CGRectMake(0, 0, 290, 255);
     
@@ -72,13 +72,6 @@
     BOOL success = YES;
     if (self.currentCount > self.cards.count - 1)
     {
-        // No next card -- show alert
-        UIAlertView *noNextAlert = [[UIAlertView alloc]
-                                    initWithTitle:@"No Next Card"
-                                    message:@"You are at the last card."
-                                    delegate:self cancelButtonTitle:@"OK"
-                                    otherButtonTitles:nil];
-        [noNextAlert show];
         self.currentCount--;
         success = NO;
     }
@@ -95,18 +88,12 @@
 - (void)cardDidLeaveRightEdge:(CardView *)cardView
 {
     NSLog(@"%s", __FUNCTION__);
-    self.currentCount--;
+    self.currentCount++;
     BOOL success = YES;
-    if (self.currentCount < 0)
+    
+    if (self.currentCount > self.cards.count - 1)
     {
-        // No previous card -- show alert
-        UIAlertView *noPreviousAlert = [[UIAlertView alloc]
-                                        initWithTitle:@"No Previous Card"
-                                        message:@"You are at the first card."
-                                        delegate:self cancelButtonTitle:@"OK"
-                                        otherButtonTitles:nil];
-        [noPreviousAlert show];
-        self.currentCount++;
+        self.currentCount--;
         success = NO;
     }
     
@@ -114,9 +101,9 @@
     [self.view addSubview:self.currentCardView];
     
     if (success)
-        [self.currentCardView showFromLeft];
-    else
         [self.currentCardView showFromCenter];
+    else
+        [self.currentCardView showFromLeft];
 }
 
 - (void)cardDidLeaveTopEdge:(CardView *)cardView
@@ -124,19 +111,7 @@
     NSLog(@"%s", __FUNCTION__);
     [self.cards removeObjectAtIndex:self.currentCount];
     BOOL success = YES;
-	
-	if (self.cards.count == 0)
-	{
-		// Show alert that there are no cards left
-		UIAlertView *noCards = [[UIAlertView alloc]
-                                initWithTitle:@"No More Cards"
-                                message:@"All cards have been removed."
-                                delegate:self cancelButtonTitle:@"OK"
-                                otherButtonTitles:nil];
-        [noCards show];
-		return;
-	}
-	
+		
     if (self.currentCount > self.cards.count - 1)
     {
         self.currentCount--;
